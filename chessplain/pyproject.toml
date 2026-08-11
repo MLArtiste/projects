@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chessplain"
+version = "0.1.0"
+description = "Chessplain project."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  {name = "MLA", email = "mlartiste@proton.me"}
+]
+dependencies = [
+  "mlalib",
+  "python-chess",
+  "huggingface-hub",
+  "zstandard"
+]
+
+[tool.setuptools.packages.find]
+include = ["chessplain*"]
+
