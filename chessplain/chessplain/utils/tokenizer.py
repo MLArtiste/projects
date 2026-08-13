@@ -65,6 +65,37 @@ class FENTokenizer:
         """
         return [self.idx_to_token[idx] for idx in token_ids]
 
+    def pprint(self, *, fen: str | None = None, token_ids: list[int] | None = None):
+        """
+        Print fen or encoded board in 8x8 layout.
+
+        Args:
+            fen (str or None): FEN string to pretty-print.
+            token_ids (list[int] or None): Token IDs to pretty-print.
+        """
+        if token_ids is not None and fen is not None:
+            raise ValueError(
+                "either 'fen' or 'token_ids' must be provided and not both"
+            )
+
+        if token_ids is not None:
+            tokens = self.decode(token_ids)
+
+        elif fen is not None:
+            tokens = self.tokenize(fen)
+
+        else:
+            raise ValueError("either 'fen' or 'token_ids' must be provided")
+
+        board_str = ""
+        for idx, token in enumerate(tokens):
+            board_str += token
+            if (idx + 1) % 8 == 0:
+                board_str += "\n"
+            else:
+                board_str += "  "
+        print(board_str)
+
     def _annotate_king(
         self,
         tokens: list[str],
