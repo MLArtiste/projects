@@ -15,17 +15,17 @@ class ChessNetEngine:
         chessnet (nn.Module): ChessNet model.
         device (str or torch.device): Device to run the model on. Defaults to 'cpu'.
         temperature (float): Sampling temperature. A lower temperature leads to more
-        deterministic moves, while a higher temperature increases randomness. Defaults to 1.0.
+        deterministic moves, while a higher temperature increases randomness. Defaults to 0.
     """
 
     def __init__(
         self,
         chessnet: nn.Module,
         device: str | torch.device = "cpu",
-        temperature: float = 1.0,
+        temperature: float = 0,
     ):
-        if temperature <= 0:
-            raise ValueError("temperature must be greater than 0")
+        if temperature < 0:
+            raise ValueError("temperature must be non-negative")
 
         self.chessnet = chessnet.to(device)
         self.chessnet.eval()
@@ -61,8 +61,11 @@ class ChessNetEngine:
             legal_mask[legal_moves] = True
             mask_value = torch.finfo(logits.dtype).min
             logits = logits.masked_fill(~legal_mask, mask_value)
-            logits = logits / self.temperature
-            probs = torch.softmax(logits, dim=-1)
-            move_idx = torch.multinomial(probs, num_samples=1).item()
+
+            if self.temperature == 0:
+                move_idx = torch.argmax(logits, dim=-1).item()
+            else:
+                probs = torch.softmax(logits / self.temperature, dim=-1)
+                move_idx = torch.multinomial(probs, num_samples=1).item()
 
         return self.idx_to_uci[move_idx]
