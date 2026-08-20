@@ -51,7 +51,7 @@ class ChessNet(nn.Module):
             ResidualBlock(self.hidden_dim) for _ in range(num_blocks)
         )
         self.norm = nn.LayerNorm(self.hidden_dim)
-        self.classifier = nn.Linear(self.hidden_dim, out_dim)
+        self.policy_head = nn.Linear(self.hidden_dim, out_dim)
 
     def forward(
         self, x: Tensor, return_features: bool = False
@@ -69,7 +69,7 @@ class ChessNet(nn.Module):
                 activations.append(out)
 
         out = self.norm(out)
-        out = self.classifier(out)
+        out = self.policy_head(out)
 
         if return_features:
             activations = torch.stack(activations, dim=1)
@@ -78,9 +78,9 @@ class ChessNet(nn.Module):
         return out
 
 
-class ChessNet32_24(ChessNet):
+class ChessNet32_9(ChessNet):
     """
-    The ChessNet32-24 model with downloadable weights.
+    The ChessNet32_9 model with downloadable weights.
 
     Args:
         weights (str or None): The weights version to load e.g 'v1.0'. If None, no pretrained
@@ -89,12 +89,17 @@ class ChessNet32_24(ChessNet):
     """
 
     WEIGHTS = {
-        "v1.0": "https://huggingface.co/MLArtiste/ChessNet/resolve/main/chessnet.pth"
+        "v1.0": "https://huggingface.co/MLArtiste/ChessNet/resolve/main/chessnet32_9v1.pth"
     }
 
     def __init__(self, weights: str | None = None, root: str | Path | None = None):
-        super().__init__(num_emb=1856, emb_dim=32, num_blocks=24, out_dim=1968)
+        super().__init__(num_emb=1856, emb_dim=32, num_blocks=9, out_dim=1968)
         if weights is not None:
+            if weights not in self.WEIGHTS:
+                raise ValueError(
+                    f"weights must be one of {list(self.WEIGHTS.keys())}, got {weights}"
+                )
+        
             path = download_from_url(self.WEIGHTS[weights], root=root)
-            checkpoint = torch.load(path, map_location="cpu")
-            self.load_state_dict(checkpoint)
+            model_params = torch.load(path, map_location="cpu", weights_only=True)
+            self.load_state_dict(model_params)
