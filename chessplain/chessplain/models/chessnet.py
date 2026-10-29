@@ -18,13 +18,13 @@ class ResidualBlock(nn.Module):
         super().__init__()
         self.norm = nn.LayerNorm(dim)
         self.linear1 = nn.Linear(dim, dim)
-        self.relu = nn.ReLU()
+        self.gelu = nn.GELU()
         self.linear2 = nn.Linear(dim, dim)
 
     def forward(self, x: Tensor) -> Tensor:
         out = self.norm(x)
         out = self.linear1(out)
-        out = self.relu(out)
+        out = self.gelu(out)
         out = self.linear2(out)
         return out + x
 
