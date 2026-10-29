@@ -1,14 +1,12 @@
 import json
 from pathlib import Path
-import zstandard as zstd
-
-import torch
-from torch.utils.data import IterableDataset
 
 from mlalib.utils import download_from_url
 
+from .chess_dataset import ChessDataset
 
-class Chesset(IterableDataset):
+
+class Chesset(ChessDataset):
     """
     The Chesset dataset.
 
@@ -46,8 +44,8 @@ class Chesset(IterableDataset):
         root: str | Path | None = None,
     ):
         if val:
-            if day is not None and month is not None:
-                raise ValueError("cannot specify day and month for val set")
+            if day is not None or month is not None:
+                raise ValueError("cannot specify day or month if val is True")
 
             filename = "val_set"
         else:
@@ -68,44 +66,9 @@ class Chesset(IterableDataset):
 
             filename = f"25-{month:02d}-{day:02d}"
 
-        metadata = json.loads(download_from_url(self.COUNTS_URL, root=root).read_text())
-        self.count = 1000_000 if val else metadata[filename]
         url = f"https://huggingface.co/datasets/MLArtiste/Chesset/resolve/main/{filename}.fen.zstd"
-        self.path = download_from_url(url, root=root)
+        metadata = json.loads(download_from_url(self.COUNTS_URL, root=root).read_text())
+        count = 1000_000 if val else metadata[filename]
+        path = download_from_url(url, root=root)
 
-    def __iter__(self):
-        """
-        Iterate over the dataset samples.
-
-        Yields:
-            tuple[Tensor, Tensor, Tensor]: FEN token IDs, target move ID, and
-            boolean legal-move mask.
-        """
-        dctx = zstd.ZstdDecompressor()
-
-        with (
-            open(self.path, "rb") as zstd_file,
-            dctx.stream_reader(zstd_file) as reader,
-        ):
-            while True:
-                fen_bytes = reader.read(64 * 2)
-                if len(fen_bytes) < 64 * 2:
-                    break
-                fen = torch.frombuffer(bytearray(fen_bytes), dtype=torch.uint16).long()
-                target = torch.frombuffer(
-                    bytearray(reader.read(2)), dtype=torch.uint16
-                ).long()[0]
-                num_legal = torch.frombuffer(
-                    bytearray(reader.read(1)), dtype=torch.uint8
-                ).item()
-                legal_moves = torch.frombuffer(
-                    bytearray(reader.read(num_legal * 2)), dtype=torch.uint16
-                ).long()
-
-                legal_mask = torch.zeros(1968, dtype=torch.bool)
-                legal_mask[legal_moves] = True
-
-                yield fen, target, legal_mask
-
-    def __len__(self) -> int:
-        return self.count
+        super().__init__(paths=path, counts=count)
