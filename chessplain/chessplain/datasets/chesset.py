@@ -69,6 +69,6 @@ class Chesset(ChessDataset):
         url = f"https://huggingface.co/datasets/MLArtiste/Chesset/resolve/main/{filename}.fen.zstd"
         metadata = json.loads(download_from_url(self.COUNTS_URL, root=root).read_text())
         count = 1000_000 if val else metadata[filename]
-        path = download_from_url(url, root=root)
+        self.path = download_from_url(url, root=root)
 
-        super().__init__(paths=path, counts=count)
+        super().__init__(paths=self.path, counts=count)
