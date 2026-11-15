@@ -31,13 +31,14 @@ def _write_sample(
     """
     fen = torch.tensor(
         tokenizer.encode(board.fen()),
-        dtype=torch.uint16,
+        dtype=torch.uint8,
     )
 
     target = torch.tensor(
         [uci_to_idx[move.uci()]],
         dtype=torch.uint16,
     )
+    
     legal_moves = torch.tensor(
         [uci_to_idx[m.uci()] for m in board.legal_moves],
         dtype=torch.uint16,
