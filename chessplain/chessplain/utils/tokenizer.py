@@ -36,8 +36,6 @@ class FENTokenizer:
 
         self._add_en_passant_info(tokens, en_passant)
 
-        tokens = [f"{square}:{piece}" for square, piece in zip(self._squares, tokens)]
-
         return tokens
 
     def encode(self, fen: str) -> list[int]:
@@ -74,9 +72,7 @@ class FENTokenizer:
             token_ids (list[int] or None): Token IDs to pretty-print.
         """
         if token_ids is not None and fen is not None:
-            raise ValueError(
-                "either 'fen' or 'token_ids' must be provided and not both"
-            )
+            raise ValueError("exactly one of 'fen' or 'token_ids' must be provided")
 
         if token_ids is not None:
             tokens = self.decode(token_ids)
@@ -85,15 +81,16 @@ class FENTokenizer:
             tokens = self.tokenize(fen)
 
         else:
-            raise ValueError("either 'fen' or 'token_ids' must be provided")
+            raise ValueError("exactly one of 'fen' or 'token_ids' must be provided")
 
+        width = max(len(token) for token in tokens)
         board_str = ""
         for idx, token in enumerate(tokens):
-            board_str += token
+            board_str += token.ljust(width)
             if (idx + 1) % 8 == 0:
                 board_str += "\n"
             else:
-                board_str += "  "
+                board_str += " "
         print(board_str)
 
     def _annotate_king(
@@ -149,42 +146,22 @@ class FENTokenizer:
         Returns:
             list[str]: List of tokens in vocabulary index order.
         """
-        vocab = []
-        for square in self._squares:
-            vocab.append(f"{square}:_")
-            for piece in [
-                "P",
-                "P_E",
-                "N",
-                "B",
-                "R",
-                "Q",
-                "K_w",
-                "K_w_K",
-                "K_w_Q",
-                "K_w_KQ",
-                "K_b",
-                "K_b_K",
-                "K_b_Q",
-                "K_b_KQ",
-            ]:
-                vocab.append(f"{square}:{piece}")
-            for piece in [
-                "p",
-                "p_E",
-                "n",
-                "b",
-                "r",
-                "q",
-                "k_w",
-                "k_w_k",
-                "k_w_q",
-                "k_w_kq",
-                "k_b",
-                "k_b_k",
-                "k_b_q",
-                "k_b_kq",
-            ]:
-                vocab.append(f"{square}:{piece}")
+        white = [
+            "P",
+            "P_E",
+            "N",
+            "B",
+            "R",
+            "Q",
+            "K_w",
+            "K_w_K",
+            "K_w_Q",
+            "K_w_KQ",
+            "K_b",
+            "K_b_K",
+            "K_b_Q",
+            "K_b_KQ",
+        ]
+        black = [p.lower() for p in white]
 
-        return vocab
+        return ["_"] + white + black
