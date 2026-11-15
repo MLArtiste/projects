@@ -55,13 +55,13 @@ class ChessDataset(IterableDataset):
             dctx.stream_reader(zstd_file) as reader,
         ):
             while True:
-                fen_bytes = reader.read(64 * 2)
-                if len(fen_bytes) < 64 * 2:
+                fen_bytes = reader.read(64)
+                if len(fen_bytes) < 64:
                     break
 
                 fen = torch.frombuffer(
                     bytearray(fen_bytes),
-                    dtype=torch.uint16,
+                    dtype=torch.uint8,
                 ).long()
 
                 target = torch.frombuffer(
