@@ -146,22 +146,12 @@ class FENTokenizer:
         Returns:
             list[str]: List of tokens in vocabulary index order.
         """
-        white = [
-            "P",
-            "P_E",
-            "N",
-            "B",
-            "R",
-            "Q",
-            "K_w",
-            "K_w_K",
-            "K_w_Q",
-            "K_w_KQ",
-            "K_b",
-            "K_b_K",
-            "K_b_Q",
-            "K_b_KQ",
-        ]
-        black = [p.lower() for p in white]
+        white = ["P", "P_E", "N", "B", "R", "Q",
+                 "K_w", "K_w_K", "K_w_Q", "K_w_KQ",
+                 "K_b", "K_b_K", "K_b_Q", "K_b_KQ"]
+
+        black = ["p", "p_E", "n", "b", "r", "q",
+                 "k_w", "k_w_k", "k_w_q", "k_w_kq",
+                 "k_b", "k_b_k", "k_b_q", "k_b_kq"]
 
         return ["_"] + white + black
