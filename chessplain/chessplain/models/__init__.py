@@ -1,3 +1,3 @@
-from .chessnet import ChessNet, ChessNet32_9
+from .chessnet import ChessNet, ChessNet32_9_3
 
-__all__ = ["ChessNet", "ChessNet32_9"]
+__all__ = ["ChessNet", "ChessNet32_9_3"]
