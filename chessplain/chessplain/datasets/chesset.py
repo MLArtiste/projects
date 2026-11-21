@@ -11,9 +11,9 @@ class Chesset(ChessDataset):
     The Chesset dataset.
 
     Args:
-        day (int): The day of the month to download (1-31).
-        month (int): The month to download (1-12).
-        val (bool): Whether to download the validation set. Defaults to False.
+        day (int): The day of the month to (down)load (1-31).
+        month (int): The month to (down)load (1-12).
+        val (bool): Whether to (down)load the validation set. Defaults to False.
         root (str, Path or None): Optional directory to download the dataset to.
     """
     COUNTS_URL = (
@@ -66,7 +66,7 @@ class Chesset(ChessDataset):
 
             filename = f"25-{month:02d}-{day:02d}"
 
-        url = f"https://huggingface.co/datasets/MLArtiste/Chesset/resolve/main/{filename}.fen.zstd"
+        url = f"https://huggingface.co/datasets/MLArtiste/Chesset/resolve/main/{filename}.tfen.zstd"
         metadata = json.loads(download_from_url(self.COUNTS_URL, root=root).read_text())
         count = 1000_000 if val else metadata[filename]
         self.path = download_from_url(url, root=root)

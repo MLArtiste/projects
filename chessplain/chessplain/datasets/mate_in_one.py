@@ -11,9 +11,9 @@ class MateInOne(ChessDataset):
     The MateInOne dataset.
 
     Args:
-        month (int): The month to download (1-12).
-        year (int): The year to download (2013-2017).
-        val (bool): Whether to download the validation set. Defaults to False.
+        month (int): The month to (down)load (1-12).
+        year (int): The year to (down)load (2013-2017).
+        val (bool): Whether to (down)load the validation set. Defaults to False.
         root (str, Path or None): Optional directory to download the dataset to.
     """
 
@@ -50,7 +50,7 @@ class MateInOne(ChessDataset):
             yr_suffix = year % 100
             filename = f"{yr_suffix:02d}-{month:02d}"
 
-        url = f"https://huggingface.co/datasets/MLArtiste/mate-in-one/resolve/main/{filename}.fen.zstd"
+        url = f"https://huggingface.co/datasets/MLArtiste/mate-in-one/resolve/main/{filename}.tfen.zstd"
         metadata = json.loads(download_from_url(self.COUNTS_URL, root=root).read_text())
         count = 500_000 if val else metadata[filename]
         path = download_from_url(url, root=root)
